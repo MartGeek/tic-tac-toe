@@ -1,104 +1,145 @@
 body {
-    margin-top: 40px;
-    background: #fff;
-        color: black;
-        font-family: Times New Roman;
-    font-weight: bold;
-    text-align:center;
+  background-color: azure;
 }
 
-h1 {
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: black;
-    
-}
-.container {
-    margin: 0 auto;
-    width: 400px;
+.bodyClassic {
+  background-color: azure;
+  background: linear-gradient(to right, azure, aliceblue);
 }
 
-#game {
-    width: 300px;
-    height: 300px;
-    border: 1px solid #dadada;
-    margin: 0 auto;
-    padding: 0;
-    margin-bottom: 20px;
+.bodyGoth {
+  background-color: gray;
+  background: linear-gradient(to right, black, gray, black);
 }
 
-#game > li {
-    list-style: none;
-    float: left;
-    overflow: hidden;
-    text-decoration:none;
-    width: 100px;
-    height: 100px;
-    background: #f1f1f1;
-    border: 1px solid #ccc;
-    border-right: 1px solid #fff;
-    cursor: pointer;
-    text-transform: uppercase;
-    text-align: center;
-    padding-top: 20px;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+.bodyWeapons {
+  background-color: red;
+  background: linear-gradient(to right, red, yellow, red);
 }
 
-#game > li.x {
-    font-size: 40px;
-    color: #ed4e6e
+.infoContainer {
+  display: grid;
+  grid-gap: auto;
+  margin-left: 5%;
+  margin-right: 5%;
+  padding-left: 10%;
+  padding-right: 10%;
+  grid-template-columns: 33% 33% 33%;
+  text-align: center;
 }
 
-#game > li.o {
-    font-size: 40px;
-    color: #485b6e;
+.infoBox {
+  background-color: lightgray;
+  color: black;
+  padding: 10px;
+  border: 5px solid transparent;
 }
 
-#game > li:hover {
-    background: #f9f9f9;
+.gameContainer {
+  display: grid;
+  margin-top: 2%;
+  margin-left: 10%;
+  margin-right: 10%;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 100px 100px 100px;
+  //background-color: azure;
+  //border: 5px solid blue;
+  text-align: center;
 }
 
-#game > li:active {
-    width: 100px;
-    height: 100px;
-    border: 0;
+.gameContainer > .blue {
+  background-color: blue;
+  color: white;
+  padding: 20px;
+  font-size: 48px;
 }
 
-#nfo {
-    text-align:center;
-    margin-top: 10px;
+.gameContainer > .red {
+  background-color: red;
+  color: white;
+  padding: 20px;
+  font-size: 48px;
 }
 
-#whos-turn > span,
-#game-messages > span {
-    display: none;
+.gameContainer > .gray {
+  background-color: gray;
+  color: purple;
+  padding: 20px;
+  font-size: 48px;
 }
 
-#whos-turn.x span.x,
-#whos-turn.o span.o, 
-#game-messages.player-x-win > span.player-x-win, 
-#game-messages.player-o-win > span.player-o-win,
-#game-messages.draw > span.draw {
-    display: block;
-    margin-top: 10px;
+.gameContainer > div {
+  border: 2px solid blue;
+  border-radius: 25px;
+  background-color: lightgray;
+  padding: 35px;
+  color: green;
 }
 
-#reset-game {
-    text-align: center;
-        border: none;
-        padding: 0.6em 1.2em;
-        background: #ed4e6e;
-        color: #fff;
-        font-size: 1em;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        cursor: pointer;
-        display: inline-block;
-        margin: 3px 2px;
-        border-radius: 2px;
+.center {
+  text-align: center;
 }
 
-#reset-game:hover {
-        background: #2c3e52;
+.yellow {
+  background-color: yellow;
+}
+
+.orangeBorder {
+  border: 5px solid orange;
+}
+
+.classicHeader {
+  font-style: normal;
+  color: black;
+}
+
+.gothHeader {
+  font-style: italic;
+  color: white;
+  text-shadow: 5px 5px 10px purple;
+}
+
+.weaponsHeader {
+  font-style: normal;
+  color: green;
+  text-shadow: 1px 1px 1px black;
+  text-transform: uppercase;
+}
+
+.yellowBig {
+  background-color: yellow;
+  font-size: 36px;
+}
+
+.redBig {
+  background-color: red;
+  font-size: 36px;
+}
+
+.red {
+  background-color: red;
+}
+
+#resetButton {
+  background-color: blue;
+  color: white;
+  font-size: 16px;
+  border: 2px solid blue;
+}
+
+#resetButton:hover {
+  background-color: white;
+  color: blue;
+}
+
+.displayNone {
+  display: none;
+}
+
+.unclickable {
+  pointer-events: none;
+}
+
+fieldset {
+  border: 0;
 }

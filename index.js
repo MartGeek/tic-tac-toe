@@ -1,149 +1,313 @@
-(function Game() {
-    // Elements
-    var game = document.getElementById('game');
-    var boxes = document.querySelectorAll('li');
-    var resetGame = document.getElementById('reset-game');
-    var turnDisplay = document.getElementById('whos-turn');
-    var gameMessages = document.getElementById('game-messages');
-    var playerOneScoreCard = document.getElementById('player-one-score');
-    var playerTwoScoreCard = document.getElementById('player-two-score');
-    
-    // Vars
-    var context = { 'player1' : 'x', 'player2' : 'o' };
-    var board = [];
-    
-    var playerOneScore = 0;
-    var playerTwoScore = 0;
-    
-    var turns;
-    var currentContext;
-    
-    // Constructor
-    var init = function() {
-        turns = 0;
-        
-        // Get current context
-        currentContext = computeContext();
-        
-        // Setup 3 x 3 board 
-        board[0] = new Array(3);
-        board[1] = new Array(3);
-        board[2] = new Array(3);
-        
-        // bind events
-        for(var i = 0; i < boxes.length; i++) {
-            boxes[i].addEventListener('click', clickHandler, false);
-        }
-        
-        resetGame.addEventListener('click', resetGameHandler, false);
+function clickButton(event) {
+  $(".item").click(function(event) {
+    var thingClicked = this.innerHTML
+    console.log("0. this is: ", this)
+    console.log("0. you clicked: ", thingClicked)
+    var playerOne = getPlayerOne()
+    var gameStyle = getGameStyle()
+    console.log('FIX THIS: ***** clickButton gameStyle: ', gameStyle)
+
+    if ((playerOne === "X") && (gameStyle === "classic")) {
+      $(this).addClass("blue")
+      $(this).html("X")
     }
+    if ((playerOne === "X") && (gameStyle === "goth")) {
+      $(this).addClass("blue")
+      $(this).html("☠️")
+    }
+    if ((playerOne === "X") && (gameStyle === "weapons")) {
+      $(this).addClass("blue")
+      $(this).html("⚔️")
+    }
+
+    if ((playerOne === "O") && (gameStyle === "classic")) {
+      $(this).addClass("blue")
+      $(this).html("O")
+    }
+    if ((playerOne === "O") && (gameStyle === "goth")) {
+      $(this).addClass("blue")
+      $(this).html("💀")
+    }
+    if ((playerOne === "O") && (gameStyle === "weapons")) {
+      $(this).addClass("blue")
+      $(this).html("💣")
+    }
+
+    playGame() 
+  })
+}
+clickButton(event)
+
+
+function checkWhoseTurn() { 
+  var currentTurn
+  var redCount = getRedCount()
+  var blueCount = getBlueCount()
+  var playerOneTurn = !blueCount || redCount > blueCount || blueCount && redCount == blueCount
+  var computerTurn = redCount < blueCount
+  if (playerOneTurn) {
+    console.log("checkWhoseTurn: it is playerOne's turn")
+    var notBlueOrRed = document.querySelectorAll("div.item:not(.blue):not(.red)")
+    $(notBlueOrRed).removeClass('unclickable')
+    $("#compTurn").removeClass('yellow orangeBorder')
+    $("#yourTurn").addClass('yellow orangeBorder')
+    currentTurn = "playerOneTurn"
+    return currentTurn
+  }
+  if (computerTurn) {
+    console.log("checkWhoseTurn: it is computer's turn")
+    var allItems = document.querySelectorAll("div.item")
+    $(allItems).addClass('unclickable') 
+    $("#yourTurn").removeClass('yellow orangeBorder')
+    $("#compTurn").addClass('yellow orangeBorder')
+    setTimeout(computerTakeTurn, 1000) 
+    currentTurn = "computerTurn"
+    return currentTurn
+  }
+}
+
+
+function computerTakeTurn() {
+  var computer = getComputer()
+  console.log('computerTakeTurn: computer is: ', computer)
+  var notBlueOrRed = document.querySelectorAll("div.item:not(.blue):not(.red)")
+  console.log('computerTakeTurn: notBlueOrRed: ', notBlueOrRed)
+   
+  var randomItem = notBlueOrRed[Math.floor(Math.random() * notBlueOrRed.length)]
+  console.log('computerTakeTurn: randomItem is: ', randomItem)
     
-    //Keeps track of player's turn
-    var computeContext = function() {
-        return (turns % 2 == 0) ? context.player1 : context.player2;
-    }
-    
-    // Bind the dom element to the click callback
-    var clickHandler = function() {
-        this.removeEventListener('click', clickHandler);
-        
-        this.className = currentContext;
-        this.innerHTML = currentContext;
-        
-        var pos = this.getAttribute('data-pos').split(',');
-        board[pos[0]][pos[1]] = computeContext() == 'x' ? 1 : 0;
-        
-        if(checkStatus()) {
-            gameWon();
-        }
-        
-        turns++;
-        currentContext = computeContext();
-        turnDisplay.className = currentContext;
-    }
-    
-    
-    // Check to see if player has won
-    var checkStatus = function() {
-        var used_boxes = 0;
-        
-        for(var rows = 0; rows < board.length; rows++ ) {
-            var row_total = 0;
-            var column_total = 0;
-            
-            for(var columns = 0; columns < board[rows].length; columns++) {
-                row_total += board[rows][columns];
-                column_total += board[columns][rows];
-                
-                if(typeof board[rows][columns] !== "undefined") {
-                    used_boxes++;
-                }
-            }
-            
-            // Winning combination for diagonal scenario [0,4,8], [2,4,6]
-            var diagonal_tl_br = board[0][0] + board[1][1] + board[2][2]; // diagonal top left to bottom right
-            var diagonal_tr_bl = board[0][2] + board[1][1] + board[2][0]; // diagonal top right bottom left
-            
-            if(diagonal_tl_br == 0 || diagonal_tr_bl == 0 || diagonal_tl_br == 3 || diagonal_tr_bl == 3) {
-                return true;
-            }
-            
-            // Winning combination for row [0,1,2], [3,4,5], [6,7,8]
-            // Winning combination for column [0,3,6], [1,4,7], [2,5,8]
-            // Only way to win is if the total is 0 or if the total is 3. X are worth 1 point and O are worth 0 points
-            if(row_total == 0 || column_total == 0 || row_total == 3 || column_total == 3) {
-                return true;
-            }
-            
-            // if all boxes are full - Draw!!!
-            if(used_boxes == 9) {
-                gameDraw();
-            }
-        }
-    }
-    var gameWon = function() {
-        clearEvents();
-        
-        // show game won message
-        gameMessages.className = 'player-' + computeContext() + '-win';
-        
-        // update the player score
-        switch(computeContext()) {
-            case 'x':
-                playerOneScoreCard.innerHTML = ++playerOneScore;
-                break;
-            case 'o':
-                playerTwoScoreCard.innerHTML = ++playerTwoScore;
-        }
-    }
-    // Tells user when game is a draw.
-    var gameDraw = function() {
-        gameMessages.className = 'draw';
-        clearEvents();
-    }
-    
-    // Stops user from clicking empty cells after game is over
-    var clearEvents = function() {
-        for(var i = 0; i < boxes.length; i++) {
-            boxes[i].removeEventListener('click', clickHandler);
-        }
-    }
-    // Reset game to play again
-    var resetGameHandler = function() {
-        clearEvents();
-        init();
-        
-        // Go over all the li nodes and remove className of either x,o
-        // clear out innerHTML
-        for(var i = 0; i < boxes.length; i++) {
-            boxes[i].className = '';
-            boxes[i].innerHTML = '';
-        }
-        
-        // Change Who's turn class back to player1
-        turnDisplay.className = currentContext;
-        gameMessages.className = '';
-    }
-    
-    game && init();
-})();
+  $(randomItem).addClass("red unclickable")
+  $(randomItem).html(computer)
+  console.log('computerTakeTurn: computer clicked: ', randomItem)
+  playGame()
+}
+
+
+function setGameStyle() {
+  $("#playerForm #group1 input").on("change", function() {
+    var gameStyle = $("input[name='group1']:checked", "#playerForm").val()
+    console.log(`game style selected: ${gameStyle}`)
+    $("#gameStyle").html(gameStyle)
+    changeStyle()
+  })
+}
+setGameStyle()
+
+function getGameStyle() {
+  if (document.getElementById("gameStyle") != null) {
+    var gameStyle = document.getElementById("gameStyle").innerHTML
+    console.log("gameStyle is:::: ", gameStyle)
+    return gameStyle
+  }
+}
+
+function setPlayerOne() {
+  $("#playerForm #group2 input").on("change", function() {
+    var playerOne = $("input[name='group2']:checked", "#playerForm").val()
+    console.log(`player selected: ${playerOne}`)
+    $("#playerForm").addClass("displayNone")
+    $("#playerOne").html(`You are: <span id="playerOneSpan" class="yellow">${playerOne}</span>`)
+    $("#gameInfo, #resetButton, #gameGrid").removeClass("displayNone")
+  })
+}
+setPlayerOne()
+
+
+function getPlayerOne() {
+  if (document.getElementById("playerOneSpan") != null) {
+    var playerOne = document.getElementById("playerOneSpan").innerHTML
+    return playerOne
+  }
+}
+
+
+function getComputer() {
+  var playerOne = getPlayerOne()
+  var gameStyle = getGameStyle()
+  
+
+  var computer
+  if (gameStyle === "classic") {
+    computer = (playerOne === "X") ? ("O") : ("X")
+  }
+  if (gameStyle === "goth") {
+    computer = (playerOne === "X") ? ("💀") : ("☠️")
+  }
+  if (gameStyle === "weapons") {
+    computer = (playerOne === "X") ? ("💣") : ("⚔️")
+  }
+
+  console.log("getComputer: computer is: ", computer)
+  return computer
+}
+
+
+function hardResetOnclick(event) { 
+  $("#resetButton").click(function(event) {
+    console.log("hardResetOnclick: resetting game...")
+    $("#playerForm").removeClass("displayNone")
+    document.getElementById("playerForm").reset()
+    styleClassic()
+    $("#playerOne, #gameResult, #congratsOrSorry").html("")
+    $("#gameInfo, #gameGrid, #congratsOrSorry").addClass("displayNone")
+    $(".item").removeClass("blue red gray unclickable")
+    $(".item").html("X/O")
+  })
+}
+hardResetOnclick()
+
+
+function reset() { 
+  console.log("reset: resetting game, for new game...")
+  $("#gameInfo").removeClass("displayNone")
+  $("#gameResult, #congratsOrSorry").addClass("displayNone")
+  $(".item").removeClass("blue red gray unclickable")
+  $(".item").html("X/O")
+}
+
+
+function getRedCount() {
+  var redCount = $('#gameGrid .red').length
+  return redCount
+}
+
+function getBlueCount() {
+  var blueCount = $('#gameGrid .blue').length
+  return blueCount
+}
+
+
+function checkForWinner() {
+  console.log("checking for winner...")
+  var winner
+
+  var eightWinningCombos = [
+    "#one.COLOR, #two.COLOR, #three.COLOR",
+    "#four.COLOR, #five.COLOR, #six.COLOR",
+    "#seven.COLOR, #eight.COLOR, #nine.COLOR",
+    "#one.COLOR, #four.COLOR, #seven.COLOR",
+    "#two.COLOR, #five.COLOR, #eight.COLOR",
+    "#three.COLOR, #six.COLOR, #nine.COLOR",
+    "#one.COLOR, #five.COLOR, #nine.COLOR",
+    "#seven.COLOR, #five.COLOR, #three.COLOR"
+  ]
+
+  var blueWinArray = getWinningArray(eightWinningCombos, "blue")
+  var redWinArray = getWinningArray(eightWinningCombos, "red")
+  var blueWins = blueWinArray.includes(true)
+  var redWins = redWinArray.includes(true)
+  var fullGrid = getRedCount() + getBlueCount()
+  var draw = (fullGrid === 9) && (!blueWins) && (!redWins)
+
+  if (blueWins) { 
+    playerOneWins()
+    return winner = blueWins
+  }
+  if (redWins) { 
+    computerWins()
+    return winner = redWins
+  }
+  if (draw) {
+    drawGame()
+    return winner = draw
+  } else {
+    console.log('game on...')
+  }
+}
+
+function getWinningArray(array, string) {
+  return array.map(function(combo) {
+    var eachCombo = combo.replace(/COLOR/g, string)
+    return eachCombo = $(eachCombo).length === 3
+  })
+}
+
+function playerOneWins() {
+  var playerOne = getPlayerOne()
+  console.log(`${playerOne} wins!`)
+  $("#gameResult").html(`<span class='yellowBig'>${playerOne} wins!</span>`)
+  $("#congratsOrSorry").html("<span class='yellow'>Congratulations! You won!</span>")
+  winLoseOrDraw()
+}
+
+function computerWins() {
+  var computer = getComputer()
+  console.log(`${computer} wins!`)
+  $("#gameResult").html(`<span class='redBig'>${computer} wins!</span>`)
+  $("#congratsOrSorry").html("<span class='red'>Sorry, you lost.</span>")
+  winLoseOrDraw()
+}
+
+function drawGame() {
+  console.log('Draw game!')
+  $("#gameResult").html(`<span class='redBig'>Game is a draw.</span>`)
+  $("#congratsOrSorry").html("<span>Game ended in a draw.</span>")
+  winLoseOrDraw()
+}
+
+function winLoseOrDraw() {
+  $("#gameResult, #congratsOrSorry").removeClass("displayNone")
+  $("#gameInfo").addClass("displayNone")
+  disableRemainingItems()
+}
+
+function disableRemainingItems() {
+  var notBlueOrRed = document.querySelectorAll("div.item:not(.blue):not(.red)")
+  $(notBlueOrRed).addClass("gray")
+  $(notBlueOrRed).html("🤷")
+  $(notBlueOrRed).addClass("unclickable")
+  return
+}
+
+
+
+function changeStyle() {
+  var body = document.body
+  var gameStyle = getGameStyle()
+  if (gameStyle === "classic") {
+    styleClassic()
+  }
+  if (gameStyle === "goth") {
+    styleGoth()
+  }
+  if (gameStyle === "weapons") {
+    styleWeapons()
+  }
+}
+changeStyle()
+
+
+function styleClassic() {
+  var body = document.body
+  $("#gameStyle").html("classic")
+  $("#header").addClass("classicHeader").removeClass("gothHeader weaponsHeader")
+  $(body).addClass("bodyClassic").removeClass("bodyGoth bodyWeapons")
+}
+
+function styleGoth() {
+  var body = document.body
+  $("#gameStyle").html("goth")
+  $("#header").addClass("gothHeader").removeClass("classicHeader weaponsHeader")
+  $(body).addClass("bodyGoth").removeClass("bodyClassic bodyWeapons")
+}
+
+function styleWeapons() {
+  var body = document.body
+  $("#gameStyle").html("weapons")
+  $("#header").addClass("weaponsHeader").removeClass("classicHeader gothHeader")
+  $(body).addClass("bodyWeapons").removeClass("bodyGoth bodyClassic")
+}
+
+function playGame() {
+  console.log('play game!')
+  var winner = checkForWinner()
+  if (!winner) {
+    console.log('no winner yet...')
+    checkWhoseTurn()
+  }
+  if (winner) {
+    console.log('game over, resetting game')
+    setTimeout(reset, 3000) 
+  }
+}
+playGame()
